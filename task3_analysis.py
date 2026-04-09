@@ -1,0 +1,147 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyM39KJs6u0FrZXMbQmhP1nm",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/muditkumar14/trendpulse-Mudit.py/blob/main/task3_analysis.py\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "AIlJvNBtU2-s",
+        "outputId": "44b53d10-05da-4e01-b1d1-068c7c2d2193"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "    post_id                                              title       category  \\\n",
+            "0  47702196  Show HN: CSS Studio. Design by hand, code by a...     technology   \n",
+            "1  47702647  Launch HN: Relvy (YC F24) – On-call runbooks, ...  entertainment   \n",
+            "2  47663743          Show HN: Moon simulator game, ray-casting         sports   \n",
+            "3  47701233    Claude mixes up who said what and that's not OK     technology   \n",
+            "4  47695012  USB for Software Developers: An introduction t...     technology   \n",
+            "\n",
+            "   score  num_comments      author         collected_at  \n",
+            "0     21            14    SirHound  2026-04-09 12:37:32  \n",
+            "1      5             5       behat  2026-04-09 12:37:32  \n",
+            "2     33             9   JKCalhoun  2026-04-09 12:37:32  \n",
+            "3    156           142  sixhobbits  2026-04-09 12:37:32  \n",
+            "4    327            39     WerWolv  2026-04-09 12:37:32  \n",
+            "Loaded data: (90, 7)\n",
+            "Average score   : 195\n",
+            "Average comments: 89\n",
+            "\n",
+            "--- NumPy Stats ---\n",
+            "Mean score   : 195\n",
+            "Median score : 97\n",
+            "Std deviation: 307\n",
+            "Max score    : 2,097\n",
+            "Min score    : 5\n",
+            "Most stories in: Index(['technology', 'entertainment', 'worldnews', 'sports', 'science'], dtype='object', name='category') ([25 25 17 14  9] stories)\n",
+            "Most commented story: \"Project Glasswing: Securing critical software for the AI era\" — 804 comments\n",
+            "\n",
+            "Saved to /trends_analysed.csv\n"
+          ]
+        }
+      ],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "# Task 1 Load and Explore\n",
+        "# Load the CSV file from Task 2\n",
+        "df = pd.read_csv('/content/trends_clean.csv')\n",
+        "\n",
+        "# Print the first 5 rows\n",
+        "print(df.head())\n",
+        "\n",
+        "# Print the shape (rows, columns)\n",
+        "print(f\"Loaded data: {df.shape}\")\n",
+        "\n",
+        "# Calculate and print average score and comments\n",
+        "avg_score = df['score'].mean()\n",
+        "avg_comments = df['num_comments'].mean()\n",
+        "print(f\"Average score   : {avg_score:,.0f}\")\n",
+        "print(f\"Average comments: {avg_comments:,.0f}\")\n",
+        "\n",
+        "# Task 2 Basic Analysis with NumPy\n",
+        "print(\"\\n--- NumPy Stats ---\")\n",
+        "scores = df['score'].values\n",
+        "\n",
+        "# Calculate mean, median, standard deviation\n",
+        "mean_score = np.mean(scores)\n",
+        "median_score = np.median(scores)\n",
+        "std_score = np.std(scores)\n",
+        "\n",
+        "print(f\"Mean score   : {mean_score:,.0f}\")\n",
+        "print(f\"Median score : {median_score:,.0f}\")\n",
+        "print(f\"Std deviation: {std_score:,.0f}\")\n",
+        "\n",
+        "# max and min scores\n",
+        "max_score = np.max(scores)\n",
+        "min_score = np.min(scores)\n",
+        "print(f\"Max score    : {max_score:,.0f}\")\n",
+        "print(f\"Min score    : {min_score:,.0f}\")\n",
+        "\n",
+        "# category has the most stories\n",
+        "category_counts = df['category'].value_counts()\n",
+        "most_common_category = category_counts.index\n",
+        "most_common_count = category_counts.values\n",
+        "print(f\"Most stories in: {most_common_category} ({most_common_count} stories)\")\n",
+        "\n",
+        "# Find the story with the most comments\n",
+        "max_comments_idx = df['num_comments'].idxmax()\n",
+        "most_commented_title = df.loc[max_comments_idx, 'title']\n",
+        "most_commented_count = df.loc[max_comments_idx, 'num_comments']\n",
+        "print(f\"Most commented story: \\\"{most_commented_title}\\\" — {most_commented_count:,.0f} comments\")\n",
+        "\n",
+        "# TASK 3:Add New Columns\n",
+        "df['engagement'] = df['num_comments'] / (df['score'] + 1)\n",
+        "\n",
+        "# Create is_popular column: True if score > average score\n",
+        "df['is_popular'] = df['score'] > avg_score\n",
+        "\n",
+        "# ===== TASK 4: Save the Result =====\n",
+        "# Save the updated DataFrame to CSV\n",
+        "df.to_csv('/trends_analysed.csv', index=False)\n",
+        "print(f\"\\nSaved to /trends_analysed.csv\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "2a9eYWQsZdzT"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
